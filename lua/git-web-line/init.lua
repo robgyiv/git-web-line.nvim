@@ -39,7 +39,7 @@ end
 
 function M.current_filepath()
   -- gets the relative path of the open file
-  local filepath = vim.fn.expand('%')
+  local filepath = vim.fn.expand('%:~:.')
   return filepath
 end
 
