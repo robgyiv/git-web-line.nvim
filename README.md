@@ -29,6 +29,7 @@ use 'robgyiv/git-web-line.nvim'
 
 ## Usage
 
+0. Ensure your git remote is up to date with your local git repo, otherwise a link can't be shared.
 1. Navigate to the line in a file you want to share.
 2. Run `:GitWebLine`.
 3. Your default web browser will open the GitHub page displaying that specific line.
@@ -39,6 +40,7 @@ use 'robgyiv/git-web-line.nvim'
 - [ ] Write unit tests to ensure reliability and maintainability.
 - [ ] Implement functionality to verify the existence of a git repository.
 - [ ] Comprehensive documentation for users and contributors.
+- [ ] Support multiple remotes.
 
 ## Contributing
 
