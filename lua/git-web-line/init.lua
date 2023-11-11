@@ -25,7 +25,6 @@ function M.git_remote_repo()
   local remote_repo_name = vim.fn.system(
     "git config --get remote.origin.url | sed -n 's/.*\\///;s/.git.*//p' | tr -d '\n'"
   )
-  -- local remote_repo_name = vim.fn.system("git config --get remote.origin.url | sed -n 's/.*://;s/.git.*//p' | tr -d '\n'")
   return remote_repo_name
 end
 
