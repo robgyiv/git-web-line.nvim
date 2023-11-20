@@ -12,20 +12,19 @@ end
 
 function M.git_remote_host(git_remote_string)
   local remote_host =
-    vim.fn.system("echo " .. git_remote_string .. " | sed -n 's/.*@//;s/:.*//p' | tr -d '\n'")
+    vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*@//;s/:.*//p' | tr -d '\n'")
   return remote_host
 end
 
 function M.git_remote_repo(git_remote_string)
-  local remote_repo_name = vim.fn.system(
-    "echo " .. git_remote_string .. " | sed -n 's/.*\\///;s/.git.*//p' | tr -d '\n'"
-  )
+  local remote_repo_name =
+    vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*\\///;s/.git.*//p' | tr -d '\n'")
   return remote_repo_name
 end
 
 function M.git_remote_username(git_remote_string)
   local remote_repo_username =
-    vim.fn.system("echo " .. git_remote_string .. "| sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'")
+    vim.fn.system('echo ' .. git_remote_string .. "| sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'")
   return remote_repo_username
 end
 
