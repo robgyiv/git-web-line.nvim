@@ -13,11 +13,15 @@ function M.git_remote_host(git_remote_string)
 end
 
 function M.git_repo_path(git_remote_string)
-  return vim.fn.system('echo ' .. git_remote_string .. " | sed -e 's/^[^:]*:[^/]*\\///' -e 's/\\.git$//' | tr -d '\n'")
+  return vim.fn.system(
+    'echo ' .. git_remote_string .. " | sed -e 's/^[^:]*:[^/]*\\///' -e 's/\\.git$//' | tr -d '\n'"
+  )
 end
 
 function M.git_remote_username(git_remote_string)
-  return vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'")
+  return vim.fn.system(
+    'echo ' .. git_remote_string .. " | sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'"
+  )
 end
 
 function M.current_filepath()
