@@ -16,10 +16,8 @@ function M.git_remote_host(git_remote_string)
   return remote_host
 end
 
-function M.git_remote_repo(git_remote_string)
-  local remote_repo_name =
-    vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*\\///;s/.git.*//p' | tr -d '\n'")
-  return remote_repo_name
+function M.git_repo_path(git_remote_string)
+  return vim.fn.system('echo ' .. git_remote_string .. " | sed -e 's/^[^:]*:[^/]*\\///' -e 's/\\.git$//' | tr -d '\n'")
 end
 
 function M.git_remote_username(git_remote_string)
@@ -39,7 +37,7 @@ function M.activate()
   local current_line = M.current_line_number()
   local branch_name = M.git_branch_name(git_remote_string)
   local remote_host = M.git_remote_host(git_remote_string)
-  local remote_repo_name = M.git_remote_repo(git_remote_string)
+  local repo_path = M.git_repo_path(git_remote_string)
   local remote_repo_username = M.git_remote_username(git_remote_string)
   local file_path = M.current_filepath()
 
@@ -48,7 +46,7 @@ function M.activate()
     .. '/'
     .. remote_repo_username
     .. '/'
-    .. remote_repo_name
+    .. repo_path
     .. '/blob/'
     .. branch_name
     .. '/'
