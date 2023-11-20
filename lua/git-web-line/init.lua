@@ -5,15 +5,11 @@ function M.current_line_number()
 end
 
 function M.git_branch_name(git_remote_string)
-  print(git_remote_string)
-  local branch_name = vim.fn.system("git rev-parse --abbrev-ref HEAD | tr -d '\n'")
-  return branch_name
+  return vim.fn.system("git rev-parse --abbrev-ref HEAD | tr -d '\n'")
 end
 
 function M.git_remote_host(git_remote_string)
-  local remote_host =
-    vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*@//;s/:.*//p' | tr -d '\n'")
-  return remote_host
+  return vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*@//;s/:.*//p' | tr -d '\n'")
 end
 
 function M.git_repo_path(git_remote_string)
@@ -21,14 +17,11 @@ function M.git_repo_path(git_remote_string)
 end
 
 function M.git_remote_username(git_remote_string)
-  local remote_repo_username =
-    vim.fn.system('echo ' .. git_remote_string .. "| sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'")
-  return remote_repo_username
+  return vim.fn.system('echo ' .. git_remote_string .. " | sed -n 's/.*://;s/\\/.*//p' | tr -d '\n'")
 end
 
 function M.current_filepath()
-  local filepath = vim.fn.expand('%:~:.')
-  return filepath
+  return vim.fn.expand('%:~:.')
 end
 
 -- Command to activate the plugin
