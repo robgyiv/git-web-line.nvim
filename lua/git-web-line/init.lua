@@ -4,8 +4,8 @@ function M.current_line_number()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
 
-function M.git_branch_name(git_remote_string)
-  return vim.fn.system("git rev-parse --abbrev-ref HEAD | tr -d '\n'")
+function M.git_branch_name()
+  return vim.fn.system("git branch --show-current | tr -d '\n'")
 end
 
 function M.git_remote_host(git_remote_string)
@@ -28,11 +28,10 @@ function M.current_filepath()
   return vim.fn.expand('%:~:.')
 end
 
--- Command to activate the plugin
 function M.activate()
   local git_remote_string = vim.fn.system("git config --get remote.origin.url | tr -d '\n'")
   local current_line = M.current_line_number()
-  local branch_name = M.git_branch_name(git_remote_string)
+  local branch_name = M.git_branch_name()
   local remote_host = M.git_remote_host(git_remote_string)
   local repo_path = M.git_repo_path(git_remote_string)
   local remote_repo_username = M.git_remote_username(git_remote_string)
@@ -53,7 +52,7 @@ function M.activate()
 
   print('Opening ' .. url)
 
-  -- open the url in the browser
+  -- Open the url in system browser
   vim.fn.system('open ' .. url)
 end
 

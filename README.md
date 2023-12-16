@@ -36,11 +36,13 @@ use 'robgyiv/git-web-line.nvim'
 
 ## Roadmap
 
-- [ ] Add support for other git providers like GitLab and Bitbucket.
+- [x] Add support for other git providers like GitLab and Bitbucket.
 - [ ] Write unit tests to ensure reliability and maintainability.
 - [ ] Implement functionality to verify the existence of a git repository.
-- [ ] Comprehensive documentation for users and contributors.
+- [x] Comprehensive documentation for users and contributors.
 - [ ] Support multiple remotes.
+- [ ] Check file exists in a UI before opening in the browser.
+- [ ] Support HTTPS git remotes.
 
 ## Contributing
 
