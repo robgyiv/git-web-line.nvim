@@ -1,4 +1,4 @@
-*git-web-line.txt*        For NVIM v0.8.0        Last change: 2023 November 20
+*git-web-line.txt*        For NVIM v0.8.0        Last change: 2023 December 16
 
 ==============================================================================
 Table of Contents                             *git-web-line-table-of-contents*
@@ -61,11 +61,13 @@ USAGE                                   *git-web-line-git-web-line.nvim-usage*
 
 ROADMAP                               *git-web-line-git-web-line.nvim-roadmap*
 
-- ☐ Add support for other git providers like GitLab and Bitbucket.
+- ☒ Add support for other git providers like GitLab and Bitbucket.
 - ☐ Write unit tests to ensure reliability and maintainability.
 - ☐ Implement functionality to verify the existence of a git repository.
-- ☐ Comprehensive documentation for users and contributors.
+- ☒ Comprehensive documentation for users and contributors.
 - ☐ Support multiple remotes.
+- ☐ Check file exists in a UI before opening in the browser.
+- ☐ Support HTTPS git remotes.
 
 
 CONTRIBUTING                     *git-web-line-git-web-line.nvim-contributing*
