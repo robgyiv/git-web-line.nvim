@@ -23,6 +23,39 @@ local function git_branch_name()
   return branch
 end
 
+-- Host detection and URL building functions
+local function detect_host(domain)
+  if domain:match('github%.com') then
+    return 'github'
+  elseif domain:match('gitlab%.com') or domain:match('gitlab%.') then
+    return 'gitlab'
+  elseif domain:match('bitbucket%.org') then
+    return 'bitbucket'
+  elseif domain:match('git%.sr%.ht') then
+    return 'sourcehut'
+  else
+    return 'github' -- Default fallback
+  end
+end
+
+local function build_url(repository, branch_name, file_path, line_number)
+  local host_type = detect_host(repository.domain)
+  local base_url = 'https://' .. repository.domain .. '/' .. repository.username .. '/' .. repository.name
+  
+  if host_type == 'github' then
+    return base_url .. '/blob/' .. branch_name .. '/' .. file_path .. '#L' .. line_number
+  elseif host_type == 'gitlab' then
+    return base_url .. '/-/blob/' .. branch_name .. '/' .. file_path .. '#L' .. line_number
+  elseif host_type == 'bitbucket' then
+    return base_url .. '/src/' .. branch_name .. '/' .. file_path .. '#lines-' .. line_number
+  elseif host_type == 'sourcehut' then
+    return base_url .. '/tree/' .. branch_name .. '/item/' .. file_path .. '#L' .. line_number
+  else
+    -- Fallback to GitHub format
+    return base_url .. '/blob/' .. branch_name .. '/' .. file_path .. '#L' .. line_number
+  end
+end
+
 -- Remote URL parsing functions
 local function _is_ssh_remote(git_remote_str)
   return git_remote_str:match('^git@') and true or false
@@ -102,18 +135,7 @@ function M.activate()
   local branch_name = git_branch_name()
   local repository = parse_remote(git_remote_str)
 
-  local url = 'https://'
-    .. repository.domain
-    .. '/'
-    .. repository.username
-    .. '/'
-    .. repository.name
-    .. '/blob/'
-    .. branch_name
-    .. '/'
-    .. file_path
-    .. '#L'
-    .. current_line
+  local url = build_url(repository, branch_name, file_path, current_line)
 
   vim.notify('Opening: ' .. url, vim.log.levels.INFO)
 
