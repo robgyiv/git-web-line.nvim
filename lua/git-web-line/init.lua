@@ -1,5 +1,21 @@
 local M = {}
 
+local function open_url(url)
+  local cmd
+  if vim.fn.has('mac') == 1 then
+    cmd = 'open'
+  elseif vim.fn.has('unix') == 1 then
+    cmd = 'xdg-open'
+  elseif vim.fn.has('win32') == 1 then
+    cmd = 'start'
+  else
+    vim.notify("Unsupported platform for opening URLs", vim.log.levels.ERROR)
+    return
+  end
+  
+  vim.fn.system(cmd .. ' ' .. vim.fn.shellescape(url))
+end
+
 local function current_line_number()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
@@ -93,7 +109,7 @@ function M.activate()
   vim.notify('Opening: ' .. url, vim.log.levels.INFO)
 
   -- Open the url in system browser
-  vim.fn.system('open ' .. url)
+  open_url(url)
 end
 
 return M
