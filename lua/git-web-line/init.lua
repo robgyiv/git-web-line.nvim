@@ -81,8 +81,7 @@ function M.activate()
     .. '#L'
     .. current_line
 
-  -- TODO: Remove (local dev indicator)
-  print('Opening ' .. url)
+  vim.notify('Opening: ' .. url, vim.log.levels.INFO)
 
   -- Open the url in system browser
   vim.fn.system('open ' .. url)
