@@ -5,26 +5,16 @@ local DEFAULT_REMOTE = 'origin'
 local GIT_BRANCH_CMD = "git branch --show-current | tr -d '\n'"
 local GIT_REMOTE_CMD = "git remote get-url " .. DEFAULT_REMOTE .. " | tr -d '\n'"
 
-local function open_url(url)
-  local cmd
-  if vim.fn.has('mac') == 1 then
-    cmd = 'open'
-  elseif vim.fn.has('unix') == 1 then
-    cmd = 'xdg-open'
-  elseif vim.fn.has('win32') == 1 then
-    cmd = 'start'
-  else
-    vim.notify("Unsupported platform for opening URLs", vim.log.levels.ERROR)
-    return
-  end
-  
-  vim.fn.system(cmd .. ' ' .. vim.fn.shellescape(url))
-end
-
+-- Neovim helper functions
 local function current_line_number()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
 
+local function current_filepath()
+  return vim.fn.expand('%:~:.')
+end
+
+-- Git utility functions
 local function git_branch_name()
   local branch = vim.fn.system(GIT_BRANCH_CMD)
   if vim.v.shell_error ~= 0 then
@@ -33,16 +23,13 @@ local function git_branch_name()
   return branch
 end
 
+-- Remote URL parsing functions
 local function _is_ssh_remote(git_remote_str)
   return git_remote_str:match('^git@') and true or false
 end
 
 local function _is_https_remote(git_remote_str)
   return git_remote_str:match('^https://') and true or false
-end
-
-local function current_filepath()
-  return vim.fn.expand('%:~:.')
 end
 
 local function detect_protocol(git_remote_str)
@@ -84,6 +71,23 @@ local function parse_remote(git_remote_str)
   else
     error('Unsupported protocol: ' .. (git_remote_str or 'nil'))
   end
+end
+
+-- System integration functions
+local function open_url(url)
+  local cmd
+  if vim.fn.has('mac') == 1 then
+    cmd = 'open'
+  elseif vim.fn.has('unix') == 1 then
+    cmd = 'xdg-open'
+  elseif vim.fn.has('win32') == 1 then
+    cmd = 'start'
+  else
+    vim.notify("Unsupported platform for opening URLs", vim.log.levels.ERROR)
+    return
+  end
+  
+  vim.fn.system(cmd .. ' ' .. vim.fn.shellescape(url))
 end
 
 function M.activate()
