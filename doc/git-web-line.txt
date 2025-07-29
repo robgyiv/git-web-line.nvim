@@ -1,4 +1,4 @@
-*git-web-line.txt*        For NVIM v0.8.0        Last change: 2023 December 16
+*git-web-line.txt*          For NVIM v0.8.0          Last change: 2025 July 29
 
 ==============================================================================
 Table of Contents                             *git-web-line-table-of-contents*
@@ -65,9 +65,12 @@ ROADMAP                               *git-web-line-git-web-line.nvim-roadmap*
 - ☐ Write unit tests to ensure reliability and maintainability.
 - ☐ Implement functionality to verify the existence of a git repository.
 - ☒ Comprehensive documentation for users and contributors.
-- ☐ Support multiple remotes.
+- ☐ Support multiple remotes, not just `origin`.
 - ☐ Check file exists in a UI before opening in the browser.
-- ☐ Support HTTPS git remotes.
+- ☒ Support HTTPS git remotes.
+- ☐ Check `git` exists; add to requirements.
+- ☐ Check branch is pushed to remote.
+- ☐ Migrate away from the forked repository’s structure to a more vanilla plugin.
 
 
 CONTRIBUTING                     *git-web-line-git-web-line.nvim-contributing*
