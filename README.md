@@ -40,9 +40,12 @@ use 'robgyiv/git-web-line.nvim'
 - [ ] Write unit tests to ensure reliability and maintainability.
 - [ ] Implement functionality to verify the existence of a git repository.
 - [x] Comprehensive documentation for users and contributors.
-- [ ] Support multiple remotes.
+- [ ] Support multiple remotes, not just `origin`.
 - [ ] Check file exists in a UI before opening in the browser.
-- [ ] Support HTTPS git remotes.
+- [x] Support HTTPS git remotes.
+- [ ] Check `git` exists; add to requirements.
+- [ ] Check branch is pushed to remote.
+- [ ] Migrate away from the forked repository's structure to a more vanilla plugin.
 
 ## Contributing
 
