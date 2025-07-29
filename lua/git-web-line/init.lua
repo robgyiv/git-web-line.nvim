@@ -5,7 +5,11 @@ local function current_line_number()
 end
 
 local function git_branch_name()
-  return vim.fn.system("git branch --show-current | tr -d '\n'")
+  local branch = vim.fn.system("git branch --show-current | tr -d '\n'")
+  if vim.v.shell_error ~= 0 then
+    error("Failed to get current branch. Are you in a git repository?")
+  end
+  return branch
 end
 
 local function _is_ssh_remote(git_remote_str)
@@ -63,6 +67,11 @@ end
 
 function M.activate()
   local git_remote_str = vim.fn.system("git remote get-url origin | tr -d '\n'")
+  if vim.v.shell_error ~= 0 then
+    vim.notify("Failed to get git remote URL. Are you in a git repository with an 'origin' remote?", vim.log.levels.ERROR)
+    return
+  end
+  
   local current_line = current_line_number()
   local file_path = current_filepath()
   local branch_name = git_branch_name()
