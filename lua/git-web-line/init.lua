@@ -82,8 +82,7 @@ function M.activate()
     .. current_line
 
   -- TODO: Remove (local dev indicator)
-  -- print('Opening ' .. url)
-  print('asdk' .. url)
+  print('Opening ' .. url)
 
   -- Open the url in system browser
   vim.fn.system('open ' .. url)

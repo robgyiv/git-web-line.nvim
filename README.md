@@ -45,6 +45,7 @@ use 'robgyiv/git-web-line.nvim'
 - [x] Support HTTPS git remotes.
 - [ ] Check `git` exists; add to requirements.
 - [ ] Check branch is pushed to remote.
+- [ ] Migrate away from the forked repository's structure to a more vanilla plugin.
 
 ## Contributing
 
