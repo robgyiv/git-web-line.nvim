@@ -1,23 +1,35 @@
 local M = {}
 
+-- Constants
+local DEFAULT_REMOTE = 'origin'
+local GIT_BRANCH_CMD = "git branch --show-current | tr -d '\n'"
+local GIT_REMOTE_CMD = "git remote get-url " .. DEFAULT_REMOTE .. " | tr -d '\n'"
+
+-- Neovim helper functions
 local function current_line_number()
   return vim.api.nvim_win_get_cursor(0)[1]
 end
 
-local function git_branch_name()
-  return vim.fn.system("git branch --show-current | tr -d '\n'")
+local function current_filepath()
+  return vim.fn.expand('%:~:.')
 end
 
+-- Git utility functions
+local function git_branch_name()
+  local branch = vim.fn.system(GIT_BRANCH_CMD)
+  if vim.v.shell_error ~= 0 then
+    error("Failed to get current branch. Are you in a git repository?")
+  end
+  return branch
+end
+
+-- Remote URL parsing functions
 local function _is_ssh_remote(git_remote_str)
   return git_remote_str:match('^git@') and true or false
 end
 
 local function _is_https_remote(git_remote_str)
   return git_remote_str:match('^https://') and true or false
-end
-
-local function current_filepath()
-  return vim.fn.expand('%:~:.')
 end
 
 local function detect_protocol(git_remote_str)
@@ -61,8 +73,30 @@ local function parse_remote(git_remote_str)
   end
 end
 
+-- System integration functions
+local function open_url(url)
+  local cmd
+  if vim.fn.has('mac') == 1 then
+    cmd = 'open'
+  elseif vim.fn.has('unix') == 1 then
+    cmd = 'xdg-open'
+  elseif vim.fn.has('win32') == 1 then
+    cmd = 'start'
+  else
+    vim.notify("Unsupported platform for opening URLs", vim.log.levels.ERROR)
+    return
+  end
+  
+  vim.fn.system(cmd .. ' ' .. vim.fn.shellescape(url))
+end
+
 function M.activate()
-  local git_remote_str = vim.fn.system("git remote get-url origin | tr -d '\n'")
+  local git_remote_str = vim.fn.system(GIT_REMOTE_CMD)
+  if vim.v.shell_error ~= 0 then
+    vim.notify("Failed to get git remote URL. Are you in a git repository with a '" .. DEFAULT_REMOTE .. "' remote?", vim.log.levels.ERROR)
+    return
+  end
+  
   local current_line = current_line_number()
   local file_path = current_filepath()
   local branch_name = git_branch_name()
@@ -81,11 +115,10 @@ function M.activate()
     .. '#L'
     .. current_line
 
-  -- TODO: Remove (local dev indicator)
-  print('Opening ' .. url)
+  vim.notify('Opening: ' .. url, vim.log.levels.INFO)
 
   -- Open the url in system browser
-  vim.fn.system('open ' .. url)
+  open_url(url)
 end
 
 return M
