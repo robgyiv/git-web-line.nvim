@@ -1,5 +1,10 @@
 local M = {}
 
+-- Constants
+local DEFAULT_REMOTE = 'origin'
+local GIT_BRANCH_CMD = "git branch --show-current | tr -d '\n'"
+local GIT_REMOTE_CMD = "git remote get-url " .. DEFAULT_REMOTE .. " | tr -d '\n'"
+
 local function open_url(url)
   local cmd
   if vim.fn.has('mac') == 1 then
@@ -21,7 +26,7 @@ local function current_line_number()
 end
 
 local function git_branch_name()
-  local branch = vim.fn.system("git branch --show-current | tr -d '\n'")
+  local branch = vim.fn.system(GIT_BRANCH_CMD)
   if vim.v.shell_error ~= 0 then
     error("Failed to get current branch. Are you in a git repository?")
   end
@@ -82,9 +87,9 @@ local function parse_remote(git_remote_str)
 end
 
 function M.activate()
-  local git_remote_str = vim.fn.system("git remote get-url origin | tr -d '\n'")
+  local git_remote_str = vim.fn.system(GIT_REMOTE_CMD)
   if vim.v.shell_error ~= 0 then
-    vim.notify("Failed to get git remote URL. Are you in a git repository with an 'origin' remote?", vim.log.levels.ERROR)
+    vim.notify("Failed to get git remote URL. Are you in a git repository with a '" .. DEFAULT_REMOTE .. "' remote?", vim.log.levels.ERROR)
     return
   end
   
