@@ -1,0 +1,5 @@
+return {
+  modules = {
+    git_web_line = "lua/git-web-line"
+  }
+}

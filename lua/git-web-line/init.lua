@@ -153,4 +153,14 @@ function M.activate()
   open_url(url)
 end
 
+-- Export functions for testing
+M._test = {
+  detect_host = detect_host,
+  build_url = build_url,
+  parse_remote = parse_remote,
+  detect_protocol = detect_protocol,
+  parse_https = parse_https,
+  parse_ssh = parse_ssh,
+}
+
 return M
