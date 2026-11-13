@@ -45,11 +45,22 @@ use 'robgyiv/git-web-line.nvim'
 
 ## Usage
 
-1. Navigate to the line in a file you want to share.
+1. Navigate to the line in a file you want to share, or select lines in visual mode.
 2. Run `:GitWebLine`, or `:GitWebLine <remote>` to link to a specific remote (remote names tab-complete).
-3. Your default web browser will open the page displaying that specific line.
+3. Your default web browser will open the page with that line or range highlighted.
 
-Supported hosts are GitHub, GitLab (including self-hosted instances with `gitlab` in the domain), Bitbucket and SourceHut. Unknown hosts use GitHub-style URLs. SSH (`git@host:owner/repo`, `ssh://`) and HTTPS remotes are supported, with or without a `.git` suffix.
+| Command | Result |
+| --- | --- |
+| `:GitWebLine` | Open the current line |
+| `:'<,'>GitWebLine` | Open the selected lines (also works with any range, e.g. `:10,20GitWebLine`) |
+| `:GitWebLine!` | Copy the URL to the clipboard instead of opening it |
+| `:GitWebLine upstream` | Use the `upstream` remote |
+
+`:GitWebLine!` is handy over SSH, where there's no local browser to open; Neovim 0.10+ copies to your local clipboard through OSC 52 when the terminal supports it. Without a clipboard provider, the URL goes to the unnamed register.
+
+On GitHub, markdown and other rendered formats (reStructuredText, AsciiDoc, Org, Textile) are linked with `?plain=1` so that line anchors work.
+
+Supported hosts are GitHub, GitLab (including self-hosted instances with `gitlab` in the domain), Bitbucket and SourceHut. Unknown hosts use GitHub-style URLs. SSH (`git@host:owner/repo`, `ssh://`) and HTTPS remotes are supported, with or without a `.git` suffix. File paths and branch names are percent-encoded, so spaces and special characters are safe.
 
 ### Choosing a remote
 
@@ -84,6 +95,9 @@ require('git-web-line').setup({
   --   'abort'     notify with an error and don't open anything
   --   'permalink' link to the newest pushed commit instead of the branch
   on_unpushed = 'warn',
+  -- What to do with the URL: 'open' it in the browser, 'copy' it to the
+  -- clipboard, or 'both'. `:GitWebLine!` always copies.
+  action = 'open',
 })
 ```
 
