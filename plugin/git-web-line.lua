@@ -10,4 +10,10 @@ end
 
 vim.api.nvim_create_user_command('GitWebLine', function(args)
   require('git-web-line').activate({ remote = args.fargs[1] })
-end, { nargs = '?', desc = 'Open the current line on the git web host' })
+end, {
+  nargs = '?',
+  complete = function(arg_lead)
+    return require('git-web-line').complete_remotes(arg_lead)
+  end,
+  desc = 'Open the current line on the git web host',
+})
