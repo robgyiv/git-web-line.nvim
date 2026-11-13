@@ -1,5 +1,9 @@
 local M = {}
 
+function M.is_available()
+  return vim.fn.executable('git') == 1
+end
+
 -- Run a git command and return trimmed stdout, or nil and an error message
 function M.run(args, cwd)
   local cmd = vim.list_extend({ 'git' }, args)

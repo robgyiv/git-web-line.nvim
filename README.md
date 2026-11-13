@@ -12,6 +12,13 @@ This project is not only a handy tool for developers but also serves as a person
 - **Seamless Integration:** Works within your Neovim workflow, making code sharing as simple as a command execution.
 - **Speeds Up Reviews:** Ideal for code reviews, saving time and enhancing productivity.
 
+## Requirements
+
+- Neovim >= 0.10
+- `git` on your `$PATH`
+
+Run `:checkhealth git-web-line` to verify your setup.
+
 ## Installation
 
 To install `git-web-line.nvim`, use your favorite package manager:
