@@ -77,9 +77,31 @@ describe('hosts', function()
       end)
     end)
 
+    describe('rendered files', function()
+      it('should add ?plain=1 for markdown on GitHub', function()
+        local url = hosts.build_url(repo('github.com'), 'main', 'docs/README.md', 5)
+        assert.equals('https://github.com/user/repo/blob/main/docs/README.md?plain=1#L5', url)
+      end)
+
+      it('should match extensions case-insensitively', function()
+        local url = hosts.build_url(repo('github.com'), 'main', 'NOTES.RST', 5)
+        assert.equals('https://github.com/user/repo/blob/main/NOTES.RST?plain=1#L5', url)
+      end)
+
+      it('should not add ?plain=1 for other files', function()
+        local url = hosts.build_url(repo('github.com'), 'main', 'md/file.lua', 5)
+        assert.equals('https://github.com/user/repo/blob/main/md/file.lua#L5', url)
+      end)
+
+      it('should not add ?plain=1 on other hosts', function()
+        local url = hosts.build_url(repo('gitlab.com'), 'main', 'README.md', 5)
+        assert.equals('https://gitlab.com/user/repo/-/blob/main/README.md#L5', url)
+      end)
+    end)
+
     it('should percent-encode special characters in the path', function()
-      local url = hosts.build_url(repo('github.com'), 'main', 'docs/my file#1%.md', 3)
-      assert.equals('https://github.com/user/repo/blob/main/docs/my%20file%231%25.md#L3', url)
+      local url = hosts.build_url(repo('github.com'), 'main', 'docs/my file#1%.txt', 3)
+      assert.equals('https://github.com/user/repo/blob/main/docs/my%20file%231%25.txt#L3', url)
     end)
 
     it('should keep slashes in branch names but encode other characters', function()

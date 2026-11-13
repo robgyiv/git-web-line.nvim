@@ -4,14 +4,14 @@ local config = require('git-web-line.config')
 local helpers = require('test.helpers')
 
 describe('action', function()
-  local URL = 'https://github.com/user/repo/blob/main/README.md#L1'
+  local URL = 'https://github.com/user/repo/blob/main/file.txt#L1'
   local captured
 
   before_each(function()
     captured = helpers.capture()
     local root = helpers.create_repo()
     helpers.push(root)
-    vim.cmd.edit(root .. '/README.md')
+    vim.cmd.edit(root .. '/file.txt')
   end)
 
   after_each(function()

@@ -1,5 +1,19 @@
 local M = {}
 
+-- GitHub renders these formats, which hides line anchors unless ?plain=1 is set
+local rendered_extensions = {
+  md = true,
+  markdown = true,
+  mdown = true,
+  mkdn = true,
+  mkd = true,
+  rst = true,
+  adoc = true,
+  asciidoc = true,
+  org = true,
+  textile = true,
+}
+
 local patterns = {
   github = { blob = '/blob/%s/%s', line = '#L%d', range = '#L%d-L%d' },
   gitlab = { blob = '/-/blob/%s/%s', line = '#L%d', range = '#L%d-%d' },
@@ -31,7 +45,8 @@ end
 -- `ref` may be a branch name or a commit SHA. `end_line` is optional; when it
 -- differs from `start_line` the URL highlights the whole range.
 function M.build_url(repository, ref, file_path, start_line, end_line)
-  local pattern = patterns[M.detect(repository.domain)]
+  local host = M.detect(repository.domain)
+  local pattern = patterns[host]
   local base_url = 'https://'
     .. repository.domain
     .. '/'
@@ -44,7 +59,12 @@ function M.build_url(repository, ref, file_path, start_line, end_line)
   end
   local anchor = start_line == end_line and pattern.line:format(start_line)
     or pattern.range:format(start_line, end_line)
-  return base_url .. pattern.blob:format(M.encode_path(ref), M.encode_path(file_path)) .. anchor
+  local extension = (file_path:match('%.([^./]+)$') or ''):lower()
+  local query = (host == 'github' and rendered_extensions[extension]) and '?plain=1' or ''
+  return base_url
+    .. pattern.blob:format(M.encode_path(ref), M.encode_path(file_path))
+    .. query
+    .. anchor
 end
 
 return M
