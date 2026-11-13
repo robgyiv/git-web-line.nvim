@@ -24,6 +24,7 @@ jobs:
         uses: kdheepak/panvimdoc@main
         with:
           vimdoc: git-web-line
+          version: 'NVIM v0.10.0'
           treesitter: true
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
