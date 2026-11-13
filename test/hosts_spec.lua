@@ -53,6 +53,21 @@ describe('hosts', function()
       assert.equals('https://git.sr.ht/user/repo/tree/main/item/src/file.lua#L42', url)
     end)
 
+    it('should percent-encode special characters in the path', function()
+      local url = hosts.build_url(repo('github.com'), 'main', 'docs/my file#1%.md', 3)
+      assert.equals('https://github.com/user/repo/blob/main/docs/my%20file%231%25.md#L3', url)
+    end)
+
+    it('should keep slashes in branch names but encode other characters', function()
+      local url = hosts.build_url(repo('github.com'), 'feature/a#b', 'file.lua', 1)
+      assert.equals('https://github.com/user/repo/blob/feature/a%23b/file.lua#L1', url)
+    end)
+
+    it('should percent-encode non-ASCII characters as UTF-8 bytes', function()
+      local url = hosts.build_url(repo('github.com'), 'main', 'café.lua', 1)
+      assert.equals('https://github.com/user/repo/blob/main/caf%C3%A9.lua#L1', url)
+    end)
+
     it('should accept a commit SHA as ref', function()
       local url = hosts.build_url(repo('github.com'), 'abc123', 'src/file.lua', 1)
       assert.equals('https://github.com/user/repo/blob/abc123/src/file.lua#L1', url)

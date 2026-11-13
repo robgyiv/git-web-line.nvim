@@ -21,6 +21,13 @@ function M.detect(domain)
   end
 end
 
+-- Percent-encode everything except unreserved characters and `/`
+function M.encode_path(path)
+  return (path:gsub('[^%w%-%._~/]', function(c)
+    return ('%%%02X'):format(c:byte())
+  end))
+end
+
 -- `ref` may be a branch name or a commit SHA
 function M.build_url(repository, ref, file_path, line_number)
   local pattern = patterns[M.detect(repository.domain)]
@@ -30,7 +37,9 @@ function M.build_url(repository, ref, file_path, line_number)
     .. repository.username
     .. '/'
     .. repository.name
-  return base_url .. pattern.blob:format(ref, file_path) .. pattern.line:format(line_number)
+  return base_url
+    .. pattern.blob:format(M.encode_path(ref), M.encode_path(file_path))
+    .. pattern.line:format(line_number)
 end
 
 return M
