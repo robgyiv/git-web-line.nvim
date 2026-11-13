@@ -43,6 +43,26 @@ function M.repo_relative_path(file_path)
   return prefix .. vim.fs.basename(file_path)
 end
 
+function M.remotes(cwd)
+  local out = M.run({ 'remote' }, cwd)
+  if not out or out == '' then
+    return {}
+  end
+  return vim.split(out, '\n')
+end
+
+-- Remote the branch tracks, or nil when it has no upstream (or tracks a local branch)
+function M.upstream_remote(branch, cwd)
+  if not branch then
+    return nil
+  end
+  local name = M.run({ 'config', '--get', 'branch.' .. branch .. '.remote' }, cwd)
+  if not name or name == '' or name == '.' then
+    return nil
+  end
+  return name
+end
+
 function M.remote_url(remote, cwd)
   return M.run({ 'remote', 'get-url', remote }, cwd)
 end

@@ -27,11 +27,11 @@ function M.check()
   end
   vim.health.ok('Git repository: ' .. root)
 
-  local remotes = git.run({ 'remote' })
-  if not remotes or remotes == '' then
+  local remotes = git.remotes()
+  if #remotes == 0 then
     vim.health.warn('No git remotes configured', { 'Add one with `git remote add origin <url>`' })
   else
-    vim.health.ok('Remotes: ' .. table.concat(vim.split(remotes, '\n'), ', '))
+    vim.health.ok('Remotes: ' .. table.concat(remotes, ', '))
   end
 end
 

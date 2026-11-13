@@ -11,6 +11,32 @@ local function notify_error(msg)
   vim.notify('git-web-line: ' .. msg, vim.log.levels.ERROR)
 end
 
+-- Pick a remote in order: explicit argument, setup() option, the branch's
+-- upstream remote, `origin`, then the first configured remote.
+local function resolve_remote(requested, branch, cwd)
+  local remotes = git.remotes(cwd)
+  if #remotes == 0 then
+    return nil, 'No git remotes configured'
+  end
+
+  local explicit = requested or config.options.remote
+  if explicit then
+    if not vim.tbl_contains(remotes, explicit) then
+      return nil, "Remote '" .. explicit .. "' does not exist"
+    end
+    return explicit
+  end
+
+  local upstream = git.upstream_remote(branch, cwd)
+  if upstream and vim.tbl_contains(remotes, upstream) then
+    return upstream
+  end
+  if vim.tbl_contains(remotes, DEFAULT_REMOTE) then
+    return DEFAULT_REMOTE
+  end
+  return remotes[1]
+end
+
 function M.setup(opts)
   config.setup(opts)
 end
@@ -35,10 +61,17 @@ function M.activate(opts)
     return
   end
 
-  local remote_name = opts.remote or config.options.remote or DEFAULT_REMOTE
+  local branch = git.branch_name(cwd)
+
+  local remote_name, remote_err = resolve_remote(opts.remote, branch, cwd)
+  if not remote_name then
+    notify_error(remote_err)
+    return
+  end
+
   local git_remote_str = git.remote_url(remote_name, cwd)
   if not git_remote_str then
-    notify_error("Failed to get git remote URL. Does the '" .. remote_name .. "' remote exist?")
+    notify_error("Failed to get URL for remote '" .. remote_name .. "'")
     return
   end
 
@@ -49,7 +82,7 @@ function M.activate(opts)
   end
 
   -- On a detached HEAD there is no branch, so link to the commit instead
-  local ref = git.branch_name(cwd) or git.head_sha(cwd)
+  local ref = branch or git.head_sha(cwd)
   if not ref then
     notify_error('Failed to determine the current branch or commit')
     return
@@ -60,6 +93,18 @@ function M.activate(opts)
 
   vim.notify('Opening: ' .. url, vim.log.levels.INFO)
   vim.ui.open(url)
+end
+
+-- Completion for :GitWebLine, using the remotes of the current buffer's repository
+function M.complete_remotes(arg_lead)
+  local buf_path = vim.api.nvim_buf_get_name(0)
+  local cwd = buf_path ~= '' and vim.fs.dirname(buf_path) or nil
+  if cwd and not vim.uv.fs_stat(cwd) then
+    cwd = nil
+  end
+  return vim.tbl_filter(function(name)
+    return vim.startswith(name, arg_lead)
+  end, git.remotes(cwd))
 end
 
 return M
