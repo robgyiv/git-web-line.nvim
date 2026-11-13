@@ -13,6 +13,11 @@ end
 
 function M.activate(opts)
   opts = opts or {}
+  if not git.is_available() then
+    vim.notify('git-web-line: `git` executable not found in $PATH', vim.log.levels.ERROR)
+    return
+  end
+
   local remote_name = opts.remote or config.options.remote or DEFAULT_REMOTE
 
   local git_remote_str = git.remote_url(remote_name)
