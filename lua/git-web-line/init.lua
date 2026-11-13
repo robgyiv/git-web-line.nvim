@@ -2,6 +2,7 @@ local config = require('git-web-line.config')
 local git = require('git-web-line.git')
 local hosts = require('git-web-line.hosts')
 local remote = require('git-web-line.remote')
+local sync = require('git-web-line.sync')
 
 local M = {}
 
@@ -86,6 +87,38 @@ function M.activate(opts)
   if not ref then
     notify_error('Failed to determine the current branch or commit')
     return
+  end
+
+  local status = sync.check({
+    cwd = cwd,
+    root = git.repo_root(cwd),
+    remote = remote_name,
+    branch = branch,
+    file_path = file_path,
+    modified = vim.bo.modified,
+  })
+  if #status.problems > 0 then
+    local summary = table.concat(status.problems, '; ')
+    local mode = config.options.on_unpushed
+    if mode == 'abort' then
+      notify_error(summary)
+      return
+    elseif mode == 'permalink' then
+      if not status.pushed_sha then
+        notify_error(summary .. '; no pushed commit to link to')
+        return
+      end
+      ref = status.pushed_sha
+      vim.notify(
+        'git-web-line: ' .. summary .. '; linking to pushed commit ' .. ref:sub(1, 7),
+        vim.log.levels.WARN
+      )
+    else
+      vim.notify(
+        'git-web-line: ' .. summary .. '; link may not match your local file',
+        vim.log.levels.WARN
+      )
+    end
   end
 
   local line_number = vim.api.nvim_win_get_cursor(0)[1]

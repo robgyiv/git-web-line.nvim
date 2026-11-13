@@ -32,6 +32,10 @@ function M.head_sha(cwd)
   return M.run({ 'rev-parse', 'HEAD' }, cwd)
 end
 
+function M.repo_root(cwd)
+  return M.run({ 'rev-parse', '--show-toplevel' }, cwd)
+end
+
 -- Path of `file_path` relative to the root of the repository containing it.
 -- Uses git's own prefix so symlinked directories resolve the same way git sees them.
 function M.repo_relative_path(file_path)

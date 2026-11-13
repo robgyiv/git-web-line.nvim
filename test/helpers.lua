@@ -31,9 +31,28 @@ function M.create_repo(opts)
   return root
 end
 
+-- Simulate pushing HEAD by pointing the remote-tracking ref at it
+function M.push(root, opts)
+  opts = opts or {}
+  local remote = opts.remote or 'origin'
+  local branch = opts.branch or 'main'
+  M.git({ 'update-ref', 'refs/remotes/' .. remote .. '/' .. branch, opts.sha or 'HEAD' }, root)
+  if opts.upstream then
+    M.git({ 'config', 'branch.' .. opts.upstream .. '.remote', remote }, root)
+    M.git({ 'config', 'branch.' .. opts.upstream .. '.merge', 'refs/heads/' .. branch }, root)
+  end
+end
+
+function M.commit(root, path, content)
+  vim.fn.writefile(vim.split(content, '\n'), root .. '/' .. path)
+  M.git({ 'add', path }, root)
+  M.git({ 'commit', '-q', '-m', 'update ' .. path }, root)
+  return M.git({ 'rev-parse', 'HEAD' }, root)
+end
+
 -- Stub vim.ui.open and vim.notify; returns a table that records calls and a restore function.
 function M.capture()
-  local captured = { urls = {}, errors = {} }
+  local captured = { urls = {}, errors = {}, warnings = {} }
   local open, notify = vim.ui.open, vim.notify
   vim.ui.open = function(url)
     table.insert(captured.urls, url)
@@ -41,6 +60,8 @@ function M.capture()
   vim.notify = function(msg, level)
     if level == vim.log.levels.ERROR then
       table.insert(captured.errors, msg)
+    elseif level == vim.log.levels.WARN then
+      table.insert(captured.warnings, msg)
     end
   end
   captured.restore = function()
