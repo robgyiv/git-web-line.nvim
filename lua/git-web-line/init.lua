@@ -38,6 +38,28 @@ local function resolve_remote(requested, branch, cwd)
   return remotes[1]
 end
 
+-- Copy to the system clipboard; without a clipboard provider fall back to the unnamed register
+local function copy(url)
+  if vim.fn.has('clipboard') == 1 then
+    vim.fn.setreg('+', url)
+    vim.notify('Copied: ' .. url, vim.log.levels.INFO)
+  else
+    vim.fn.setreg('"', url)
+    vim.notify(
+      'git-web-line: no clipboard provider, copied to the unnamed register: ' .. url,
+      vim.log.levels.WARN
+    )
+  end
+end
+
+local function open(url)
+  vim.notify('Opening: ' .. url, vim.log.levels.INFO)
+  local _, err = vim.ui.open(url)
+  if err then
+    notify_error('Failed to open URL (' .. err .. '). Use :GitWebLine! to copy it instead')
+  end
+end
+
 function M.setup(opts)
   config.setup(opts)
 end
@@ -134,8 +156,14 @@ function M.activate(opts)
     opts.line2 or opts.line1 or cursor_line
   )
 
-  vim.notify('Opening: ' .. url, vim.log.levels.INFO)
-  vim.ui.open(url)
+  local action = opts.action or config.options.action
+  if action == 'copy' or action == 'both' then
+    copy(url)
+  end
+  if action == 'open' or action == 'both' then
+    open(url)
+  end
+  return url
 end
 
 -- Completion for :GitWebLine, using the remotes of the current buffer's repository

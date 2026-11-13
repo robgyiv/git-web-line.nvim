@@ -62,6 +62,17 @@ describe(':GitWebLine', function()
     assert.same({ 'https://github.com/user/repo/blob/main/README.md#L2-L3' }, captured.urls)
   end)
 
+  it('should copy instead of opening with a bang', function()
+    vim.cmd('GitWebLine!')
+    assert.same({}, captured.urls)
+    assert.equals('https://github.com/user/repo/blob/main/README.md#L1', captured.registers['+'])
+  end)
+
+  it('should copy a range for a remote with a bang', function()
+    vim.cmd('1,1GitWebLine! upstream')
+    assert.equals('https://gitlab.com/org/repo/-/blob/main/README.md#L1', captured.registers['+'])
+  end)
+
   it('should complete remote names on the command line', function()
     assert.same({ 'upstream' }, vim.fn.getcompletion('GitWebLine up', 'cmdline'))
   end)

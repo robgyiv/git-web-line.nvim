@@ -13,10 +13,12 @@ vim.api.nvim_create_user_command('GitWebLine', function(args)
     remote = args.fargs[1],
     line1 = args.line1,
     line2 = args.line2,
+    action = args.bang and 'copy' or nil,
   })
 end, {
   nargs = '?',
   range = true,
+  bang = true,
   complete = function(arg_lead)
     return require('git-web-line').complete_remotes(arg_lead)
   end,

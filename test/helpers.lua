@@ -52,8 +52,18 @@ end
 
 -- Stub vim.ui.open and vim.notify; returns a table that records calls and a restore function.
 function M.capture()
-  local captured = { urls = {}, errors = {}, warnings = {} }
-  local open, notify = vim.ui.open, vim.notify
+  local captured = { urls = {}, errors = {}, warnings = {}, registers = {}, clipboard = true }
+  local open, notify, setreg, has = vim.ui.open, vim.notify, vim.fn.setreg, vim.fn.has
+  -- Never touch the real clipboard from tests
+  vim.fn.setreg = function(reg, value)
+    captured.registers[reg] = value
+  end
+  vim.fn.has = function(feature)
+    if feature == 'clipboard' then
+      return captured.clipboard and 1 or 0
+    end
+    return has(feature)
+  end
   vim.ui.open = function(url)
     table.insert(captured.urls, url)
   end
@@ -65,7 +75,7 @@ function M.capture()
     end
   end
   captured.restore = function()
-    vim.ui.open, vim.notify = open, notify
+    vim.ui.open, vim.notify, vim.fn.setreg, vim.fn.has = open, notify, setreg, has
   end
   return captured
 end

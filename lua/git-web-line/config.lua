@@ -8,20 +8,31 @@ M.defaults = {
   --   'abort'     notify with an error and don't open anything
   --   'permalink' link to the newest pushed commit instead of the branch
   on_unpushed = 'warn',
+  -- What to do with the URL: 'open' it in the browser, 'copy' it to the
+  -- clipboard, or 'both'. `:GitWebLine!` always copies.
+  action = 'open',
 }
 
-local ON_UNPUSHED = { warn = true, abort = true, permalink = true }
+local allowed = {
+  on_unpushed = { 'warn', 'abort', 'permalink' },
+  action = { 'open', 'copy', 'both' },
+}
 
 M.options = vim.deepcopy(M.defaults)
 
 function M.setup(opts)
   local options = vim.tbl_deep_extend('force', vim.deepcopy(M.defaults), opts or {})
-  if not ON_UNPUSHED[options.on_unpushed] then
-    error(
-      "git-web-line: on_unpushed must be 'warn', 'abort' or 'permalink', got "
-        .. vim.inspect(options.on_unpushed),
-      0
-    )
+  for key, values in pairs(allowed) do
+    if not vim.tbl_contains(values, options[key]) then
+      error(
+        ('git-web-line: %s must be one of %s, got %s'):format(
+          key,
+          table.concat(values, ', '),
+          vim.inspect(options[key])
+        ),
+        0
+      )
+    end
   end
   M.options = options
   return M.options
