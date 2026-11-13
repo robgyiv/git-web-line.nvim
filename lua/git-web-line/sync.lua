@@ -21,14 +21,35 @@ function M.remote_ref(remote, branch, cwd)
   return nil
 end
 
+function M.has_remote_refs(remote, cwd)
+  local ref =
+    git.run({ 'for-each-ref', '--count=1', '--format=%(refname)', 'refs/remotes/' .. remote }, cwd)
+  return ref ~= nil and ref ~= ''
+end
+
+-- Whether `path` (relative to the repository root) exists at `rev`
+function M.file_exists(rev, path, cwd)
+  return git.run({ 'cat-file', '-e', rev .. ':' .. path }, cwd) ~= nil
+end
+
 -- Returns { problems = { string... }, pushed_sha = string|nil }.
 -- `pushed_sha` is the newest commit in HEAD's history known to be on the remote.
 function M.check(ctx)
   local problems = {}
   local pushed_sha
+  -- Revision on the remote that the opened URL will show
+  local remote_rev
 
-  if ctx.branch then
+  if not M.has_remote_refs(ctx.remote, ctx.cwd) then
+    table.insert(
+      problems,
+      "no refs found for remote '"
+        .. ctx.remote
+        .. "' (run `git fetch`, or check the repository exists)"
+    )
+  elseif ctx.branch then
     local ref = M.remote_ref(ctx.remote, ctx.branch, ctx.cwd)
+    remote_rev = ref
     if not ref then
       table.insert(
         problems,
@@ -52,9 +73,14 @@ function M.check(ctx)
     }, ctx.cwd)
     if containing and containing ~= '' then
       pushed_sha = git.head_sha(ctx.cwd)
+      remote_rev = pushed_sha
     else
       table.insert(problems, "commit has not been pushed to '" .. ctx.remote .. "'")
     end
+  end
+
+  if remote_rev and not M.file_exists(remote_rev, ctx.file_path, ctx.cwd) then
+    table.insert(problems, "file does not exist on '" .. ctx.remote .. "'")
   end
 
   local committed = git.run({ 'diff', '--quiet', 'HEAD', '--', ctx.file_path }, ctx.root)
