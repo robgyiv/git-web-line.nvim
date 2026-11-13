@@ -1,6 +1,6 @@
 # git-web-line.nvim
 
-**Navigate your code in Neovim, share it on GitHub instantly.**
+**Navigate your code in Neovim, share it on GitHub, GitLab, Bitbucket or SourceHut instantly.**
 
 `git-web-line.nvim` is a lightweight Neovim plugin designed to streamline the process of sharing specific parts of your code. Perfect for code reviews or when you're exploring a new codebase, this plugin lets you generate a GitHub URL for the current line in your Neovim editor, opening it directly in the browser. Say goodbye to the tedious process of navigating through GitHub's web UI to share a piece of code!
 
@@ -23,6 +23,15 @@ Run `:checkhealth git-web-line` to verify your setup.
 
 To install `git-web-line.nvim`, use your favorite package manager:
 
+```lua
+-- lazy.nvim
+{
+  'robgyiv/git-web-line.nvim',
+  cmd = 'GitWebLine',
+  opts = {},
+}
+```
+
 ```vim
 " If you are using Vim-Plug
 Plug 'robgyiv/git-web-line.nvim'
@@ -36,23 +45,75 @@ use 'robgyiv/git-web-line.nvim'
 
 ## Usage
 
-0. Ensure your git remote is up to date with your local git repo, otherwise a link can't be shared.
 1. Navigate to the line in a file you want to share.
-2. Run `:GitWebLine`.
-3. Your default web browser will open the GitHub page displaying that specific line.
+2. Run `:GitWebLine`, or `:GitWebLine <remote>` to link to a specific remote (remote names tab-complete).
+3. Your default web browser will open the page displaying that specific line.
+
+Supported hosts are GitHub, GitLab (including self-hosted instances with `gitlab` in the domain), Bitbucket and SourceHut. Unknown hosts use GitHub-style URLs. SSH (`git@host:owner/repo`, `ssh://`) and HTTPS remotes are supported, with or without a `.git` suffix.
+
+### Choosing a remote
+
+When no remote is passed to the command, the first match of the following is used:
+
+1. The `remote` option passed to `setup()`
+2. The remote the current branch tracks (its upstream)
+3. `origin`
+4. The first configured remote
+
+### Unpushed changes
+
+Before opening the browser, the plugin compares your local state with the remote's remote-tracking refs (e.g. `origin/main`) and reports when:
+
+- the remote has no fetched refs (it has never been fetched, or the repository may not exist)
+- the current branch has not been pushed, or has commits that aren't pushed
+- the file doesn't exist on the remote
+- the file has uncommitted or unsaved changes
+
+These checks don't touch the network, so they are only as current as your last `git fetch`. The `on_unpushed` option controls what happens next (see below).
+
+## Configuration
+
+Calling `setup()` is optional. The defaults are:
+
+```lua
+require('git-web-line').setup({
+  -- Remote to link to. nil picks one automatically (see "Choosing a remote").
+  remote = nil,
+  -- What to do when the branch, commits or file aren't pushed to the remote:
+  --   'warn'      notify, then open the branch URL anyway
+  --   'abort'     notify with an error and don't open anything
+  --   'permalink' link to the newest pushed commit instead of the branch
+  on_unpushed = 'warn',
+})
+```
+
+## Health check
+
+Run `:checkhealth git-web-line` to see the Neovim and git versions, the current repository and its remotes.
+
+## Development
+
+Tests use [plenary.nvim](https://github.com/nvim-lua/plenary.nvim). Point `PLENARY_DIR` at a local checkout (it defaults to `~/.local/share/nvim/site/pack/vendor/start/plenary.nvim`) and run:
+
+```sh
+PLENARY_DIR=/path/to/plenary.nvim nvim --headless --noplugin -u test/minimal_init.lua \
+  -c "PlenaryBustedDirectory test/ {minimal_init = 'test/minimal_init.lua'}"
+```
+
+Format with [StyLua](https://github.com/JohnnyMorganz/StyLua): `stylua .`
 
 ## Roadmap
 
 - [x] Add support for other git providers like GitLab and Bitbucket.
-- [ ] Write unit tests to ensure reliability and maintainability.
-- [ ] Implement functionality to verify the existence of a git repository.
+- [x] Write unit tests to ensure reliability and maintainability.
+- [x] Implement functionality to verify the existence of a git repository on cloud host.
 - [x] Comprehensive documentation for users and contributors.
-- [ ] Support multiple remotes, not just `origin`.
-- [ ] Check file exists in a UI before opening in the browser.
+- [x] Support multiple remotes, not just `origin`.
+- [x] Check file exists in a UI before opening in the browser.
 - [x] Support HTTPS git remotes.
-- [ ] Check `git` exists; add to requirements.
-- [ ] Check branch is pushed to remote.
-- [ ] Migrate away from the forked repository's structure to a more vanilla plugin.
+- [x] Check `git` exists; add to requirements.
+- [x] Check branch is pushed to remote.
+- [x] Migrate away from the forked repository's structure to a more vanilla plugin.
 
 ## Contributing
 
