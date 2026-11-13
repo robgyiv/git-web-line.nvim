@@ -1,10 +1,10 @@
 local M = {}
 
 local patterns = {
-  github = { blob = '/blob/%s/%s', line = '#L%d' },
-  gitlab = { blob = '/-/blob/%s/%s', line = '#L%d' },
-  bitbucket = { blob = '/src/%s/%s', line = '#lines-%d' },
-  sourcehut = { blob = '/tree/%s/item/%s', line = '#L%d' },
+  github = { blob = '/blob/%s/%s', line = '#L%d', range = '#L%d-L%d' },
+  gitlab = { blob = '/-/blob/%s/%s', line = '#L%d', range = '#L%d-%d' },
+  bitbucket = { blob = '/src/%s/%s', line = '#lines-%d', range = '#lines-%d:%d' },
+  sourcehut = { blob = '/tree/%s/item/%s', line = '#L%d', range = '#L%d-%d' },
 }
 
 function M.detect(domain)
@@ -28,8 +28,9 @@ function M.encode_path(path)
   end))
 end
 
--- `ref` may be a branch name or a commit SHA
-function M.build_url(repository, ref, file_path, line_number)
+-- `ref` may be a branch name or a commit SHA. `end_line` is optional; when it
+-- differs from `start_line` the URL highlights the whole range.
+function M.build_url(repository, ref, file_path, start_line, end_line)
   local pattern = patterns[M.detect(repository.domain)]
   local base_url = 'https://'
     .. repository.domain
@@ -37,9 +38,13 @@ function M.build_url(repository, ref, file_path, line_number)
     .. repository.username
     .. '/'
     .. repository.name
-  return base_url
-    .. pattern.blob:format(M.encode_path(ref), M.encode_path(file_path))
-    .. pattern.line:format(line_number)
+  end_line = end_line or start_line
+  if end_line < start_line then
+    start_line, end_line = end_line, start_line
+  end
+  local anchor = start_line == end_line and pattern.line:format(start_line)
+    or pattern.range:format(start_line, end_line)
+  return base_url .. pattern.blob:format(M.encode_path(ref), M.encode_path(file_path)) .. anchor
 end
 
 return M

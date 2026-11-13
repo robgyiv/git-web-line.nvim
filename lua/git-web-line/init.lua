@@ -125,8 +125,14 @@ function M.activate(opts)
     end
   end
 
-  local line_number = vim.api.nvim_win_get_cursor(0)[1]
-  local url = hosts.build_url(repository, ref, file_path, line_number)
+  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+  local url = hosts.build_url(
+    repository,
+    ref,
+    file_path,
+    opts.line1 or cursor_line,
+    opts.line2 or opts.line1 or cursor_line
+  )
 
   vim.notify('Opening: ' .. url, vim.log.levels.INFO)
   vim.ui.open(url)

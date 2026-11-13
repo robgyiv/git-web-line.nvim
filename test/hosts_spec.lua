@@ -53,6 +53,30 @@ describe('hosts', function()
       assert.equals('https://git.sr.ht/user/repo/tree/main/item/src/file.lua#L42', url)
     end)
 
+    describe('line ranges', function()
+      local cases = {
+        { 'github.com', 'https://github.com/user/repo/blob/main/f.lua#L10-L20' },
+        { 'gitlab.com', 'https://gitlab.com/user/repo/-/blob/main/f.lua#L10-20' },
+        { 'bitbucket.org', 'https://bitbucket.org/user/repo/src/main/f.lua#lines-10:20' },
+        { 'git.sr.ht', 'https://git.sr.ht/user/repo/tree/main/item/f.lua#L10-20' },
+      }
+      for _, case in ipairs(cases) do
+        it('should build a range URL for ' .. case[1], function()
+          assert.equals(case[2], hosts.build_url(repo(case[1]), 'main', 'f.lua', 10, 20))
+        end)
+      end
+
+      it('should use a single-line anchor when start and end match', function()
+        local url = hosts.build_url(repo('github.com'), 'main', 'f.lua', 7, 7)
+        assert.equals('https://github.com/user/repo/blob/main/f.lua#L7', url)
+      end)
+
+      it('should order a reversed range', function()
+        local url = hosts.build_url(repo('github.com'), 'main', 'f.lua', 20, 10)
+        assert.equals('https://github.com/user/repo/blob/main/f.lua#L10-L20', url)
+      end)
+    end)
+
     it('should percent-encode special characters in the path', function()
       local url = hosts.build_url(repo('github.com'), 'main', 'docs/my file#1%.md', 3)
       assert.equals('https://github.com/user/repo/blob/main/docs/my%20file%231%25.md#L3', url)
