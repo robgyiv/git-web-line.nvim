@@ -108,6 +108,10 @@ function M.activate(opts)
         notify_error(summary .. '; no pushed commit to link to')
         return
       end
+      if not sync.file_exists(status.pushed_sha, file_path, cwd) then
+        notify_error(summary .. '; file does not exist in the newest pushed commit')
+        return
+      end
       ref = status.pushed_sha
       vim.notify(
         'git-web-line: ' .. summary .. '; linking to pushed commit ' .. ref:sub(1, 7),
