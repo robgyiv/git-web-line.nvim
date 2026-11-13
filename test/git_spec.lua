@@ -1,0 +1,15 @@
+local assert = require('luassert')
+local git = require('git-web-line.git')
+
+describe('git.run', function()
+  it('should return trimmed stdout on success', function()
+    local out = git.run({ '--version' })
+    assert.truthy(out:match('^git version'))
+  end)
+
+  it('should return nil and an error on failure', function()
+    local out, err = git.run({ 'not-a-real-subcommand' })
+    assert.is_nil(out)
+    assert.is_string(err)
+  end)
+end)

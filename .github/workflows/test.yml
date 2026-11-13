@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        neovim_version: ['nightly', 'stable']
+        neovim_version: ['nightly', 'stable', 'v0.10.0']
     steps:
       - uses: actions/checkout@v4
 
