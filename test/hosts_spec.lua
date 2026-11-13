@@ -1,0 +1,61 @@
+local assert = require('luassert')
+local hosts = require('git-web-line.hosts')
+
+describe('hosts', function()
+  describe('detect', function()
+    it('should detect GitHub', function()
+      assert.equals('github', hosts.detect('github.com'))
+    end)
+
+    it('should detect GitLab.com', function()
+      assert.equals('gitlab', hosts.detect('gitlab.com'))
+    end)
+
+    it('should detect self-hosted GitLab', function()
+      assert.equals('gitlab', hosts.detect('gitlab.example.com'))
+    end)
+
+    it('should detect Bitbucket', function()
+      assert.equals('bitbucket', hosts.detect('bitbucket.org'))
+    end)
+
+    it('should detect SourceHut', function()
+      assert.equals('sourcehut', hosts.detect('git.sr.ht'))
+    end)
+
+    it('should fallback to GitHub for unknown hosts', function()
+      assert.equals('github', hosts.detect('unknown.example.com'))
+    end)
+  end)
+
+  describe('build_url', function()
+    local function repo(domain)
+      return { domain = domain, username = 'user', name = 'repo' }
+    end
+
+    it('should build GitHub URLs correctly', function()
+      local url = hosts.build_url(repo('github.com'), 'main', 'src/file.lua', 42)
+      assert.equals('https://github.com/user/repo/blob/main/src/file.lua#L42', url)
+    end)
+
+    it('should build GitLab URLs correctly', function()
+      local url = hosts.build_url(repo('gitlab.com'), 'main', 'src/file.lua', 42)
+      assert.equals('https://gitlab.com/user/repo/-/blob/main/src/file.lua#L42', url)
+    end)
+
+    it('should build Bitbucket URLs correctly', function()
+      local url = hosts.build_url(repo('bitbucket.org'), 'main', 'src/file.lua', 42)
+      assert.equals('https://bitbucket.org/user/repo/src/main/src/file.lua#lines-42', url)
+    end)
+
+    it('should build SourceHut URLs correctly', function()
+      local url = hosts.build_url(repo('git.sr.ht'), 'main', 'src/file.lua', 42)
+      assert.equals('https://git.sr.ht/user/repo/tree/main/item/src/file.lua#L42', url)
+    end)
+
+    it('should accept a commit SHA as ref', function()
+      local url = hosts.build_url(repo('github.com'), 'abc123', 'src/file.lua', 1)
+      assert.equals('https://github.com/user/repo/blob/abc123/src/file.lua#L1', url)
+    end)
+  end)
+end)
